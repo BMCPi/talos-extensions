@@ -2,106 +2,107 @@
 kind: pkgfile.Build
 spec:
   targets:
-    - amdgpu
-    - amd-ucode
-    - binfmt-misc
-    - bnx2-bnx2x
-    - btrfs
-    - chelsio-drivers
-    - chelsio-firmware
-    - cloudflared
-    - crun
-    - drbd
-    - dvb-cx23885
-    - ecr-credential-provider
-    - fuse3
-    - gasket-driver
-    - glibc
-    - gvisor
-    - gvisor-debug
-    - hello-world-service
-    - i915
-    - intel-ice-firmware
-    - intel-ucode
-    - iscsi-tools
-    - kata-containers
-    - lldpd
-    - mdadm
-    - mei
-    - metal-agent
-    - nebula
-    - nfsd
-    - nut-client
-    - nvidia-container-toolkit-lts
-    - nvidia-container-toolkit-production
-    - nvidia-fabricmanager-lts
-    - nvidia-fabricmanager-production
-    - nvidia-open-gpu-kernel-modules-lts
-    - nvidia-open-gpu-kernel-modules-production
-    - nvme-cli
-    - qemu-guest-agent
-    - qlogic-firmware
-    - realtek-firmware
-    - spin
-    - stargz-snapshotter
-    - tailscale
-    - thunderbolt
-    - uinput
-    - usb-modem-drivers
-    - util-linux-tools
-    - v4l-uvc-drivers
-    - vmtoolsd-guest-agent
-    - wasmedge
-    - xen-guest-agent
-    - zfs
+  - amdgpu
+  - amd-ucode
+  - binfmt-misc
+  - bnx2-bnx2x
+  - btrfs
+  - chelsio-drivers
+  - chelsio-firmware
+  - cloudflared
+  - crun
+  - drbd
+  - dvb-cx23885
+  - ecr-credential-provider
+  - fuse3
+  - gasket-driver
+  - glibc
+  - gvisor
+  - gvisor-debug
+  - hello-world-service
+  - i915
+  - intel-ice-firmware
+  - intel-ucode
+  - ironic-python-agent
+  - iscsi-tools
+  - kata-containers
+  - lldpd
+  - mdadm
+  - mei
+  - metal-agent
+  - nebula
+  - nfsd
+  - nut-client
+  - nvidia-container-toolkit-lts
+  - nvidia-container-toolkit-production
+  - nvidia-fabricmanager-lts
+  - nvidia-fabricmanager-production
+  - nvidia-open-gpu-kernel-modules-lts
+  - nvidia-open-gpu-kernel-modules-production
+  - nvme-cli
+  - qemu-guest-agent
+  - qlogic-firmware
+  - realtek-firmware
+  - spin
+  - stargz-snapshotter
+  - tailscale
+  - thunderbolt
+  - uinput
+  - usb-modem-drivers
+  - util-linux-tools
+  - v4l-uvc-drivers
+  - vmtoolsd-guest-agent
+  - wasmedge
+  - xen-guest-agent
+  - zfs
   additionalTargets:
     nonfree:
-      - nonfree-kmod-nvidia-lts
-      - nonfree-kmod-nvidia-production
+    - nonfree-kmod-nvidia-lts
+    - nonfree-kmod-nvidia-production
   reproducibleTargetName: reproducibility
   extraBuildArgs:
-    - TAG
-    - PKGS
-    - PKGS_PREFIX
-    - TOOLS
-    - TOOLS_PREFIX
+  - TAG
+  - PKGS
+  - PKGS_PREFIX
+  - TOOLS
+  - TOOLS_PREFIX
   makefile:
     extraVariables:
-      - name: EXTENSIONS_IMAGE_REF
-        defaultValue: $(REGISTRY_AND_USERNAME)/extensions:$(TAG)
-      - name: PKGS
-        defaultValue: v1.10.0-alpha.0-52-g1d84473
-      - name: PKGS_PREFIX
-        defaultValue: ghcr.io/siderolabs
-      - name: TOOLS
-        defaultValue: v1.10.0-alpha.0-19-g87acb27
-      - name: TOOLS_PREFIX
-        defaultValue: ghcr.io/siderolabs
+    - name: EXTENSIONS_IMAGE_REF
+      defaultValue: $(REGISTRY_AND_USERNAME)/extensions:$(TAG)
+    - name: PKGS
+      defaultValue: v1.10.0-alpha.0-52-g1d84473
+    - name: PKGS_PREFIX
+      defaultValue: ghcr.io/siderolabs
+    - name: TOOLS
+      defaultValue: v1.10.0-alpha.0-19-g87acb27
+    - name: TOOLS_PREFIX
+      defaultValue: ghcr.io/siderolabs
   useBldrPkgTagResolver: true
 ---
 kind: common.Build
 spec:
   ignoredPaths:
-    - "internal/extensions/image-digests"
-    - "internal/extensions/descriptions.yaml"
+  - "internal/extensions/image-digests"
+  - "internal/extensions/descriptions.yaml"
 ---
 kind: auto.CustomSteps
 spec:
   steps:
-    - name: check-dirty
-      toplevel: true
-    - name: extensions
-      toplevel: true
-    - name: extensions-metadata
-      toplevel: true
-    - name: internal/extensions/image-digests
-      toplevel: true
-    - name: internal/extensions/descriptions.yaml
-      toplevel: true
-    - name: sign-images
-      toplevel: true
-    - name: extensions-info
-      toplevel: true
+  - name: check-dirty
+    toplevel: true
+  - name: extensions
+    toplevel: true
+  - name: extensions-metadata
+    toplevel: true
+  - name: internal/extensions/image-digests
+    toplevel: true
+  - name: internal/extensions/descriptions.yaml
+    toplevel: true
+  - name: sign-images
+    toplevel: true
+  - name: extensions-info
+    toplevel: true
 ---
 kind: custom.Step
 name: extensions
@@ -110,10 +111,10 @@ spec:
     enabled: true
     phony: true
     depends:
-      - internal/extensions/descriptions.yaml
+    - internal/extensions/descriptions.yaml
     script:
-      - |
-        @$(MAKE) docker-$@ TARGET_ARGS="--tag=$(EXTENSIONS_IMAGE_REF) --push=$(PUSH)"
+    - |
+      @$(MAKE) docker-$@ TARGET_ARGS="--tag=$(EXTENSIONS_IMAGE_REF) --push=$(PUSH)"
   ghaction:
     enabled: true
     condition: except-pull-request
@@ -127,12 +128,12 @@ spec:
     enabled: true
     phony: true
     depends:
-      - $(ARTIFACTS)/bldr
+    - $(ARTIFACTS)/bldr
     script:
-      - |
-        @rm -f _out/extensions-metadata
-        @$(foreach target,$(TARGETS),echo $(REGISTRY)/$(USERNAME)/$(target):$(shell $(ARTIFACTS)/bldr eval --target $(target) --build-arg TAG=$(TAG) '{{.VERSION}}' 2>/dev/null) >> _out/extensions-metadata;)
-        @$(foreach target,$(NONFREE_TARGETS),echo $(REGISTRY)/$(USERNAME)/$(target):$(shell $(ARTIFACTS)/bldr eval --target $(target) --build-arg TAG=$(TAG) '{{.VERSION}}' 2>/dev/null) >> _out/extensions-metadata;)
+    - |
+      @rm -f _out/extensions-metadata
+      @$(foreach target,$(TARGETS),echo $(REGISTRY)/$(USERNAME)/$(target):$(shell $(ARTIFACTS)/bldr eval --target $(target) --build-arg TAG=$(TAG) '{{.VERSION}}' 2>/dev/null) >> _out/extensions-metadata;)
+      @$(foreach target,$(NONFREE_TARGETS),echo $(REGISTRY)/$(USERNAME)/$(target):$(shell $(ARTIFACTS)/bldr eval --target $(target) --build-arg TAG=$(TAG) '{{.VERSION}}' 2>/dev/null) >> _out/extensions-metadata;)
 ---
 kind: custom.Step
 name: internal/extensions/image-digests
@@ -141,11 +142,11 @@ spec:
     enabled: true
     phony: true
     depends:
-      - extensions-metadata
+    - extensions-metadata
     script:
-      - |
-        @echo "Generating image digests..."
-        @cat _out/extensions-metadata | xargs -I{} sh -c 'echo {}@$$(crane digest {})' > internal/extensions/image-digests
+    - |
+      @echo "Generating image digests..."
+      @cat _out/extensions-metadata | xargs -I{} sh -c 'echo {}@$$(crane digest {})' > internal/extensions/image-digests
 ---
 kind: custom.Step
 name: internal/extensions/descriptions.yaml
@@ -154,14 +155,14 @@ spec:
     enabled: true
     phony: true
     depends:
-      - internal/extensions/image-digests
+    - internal/extensions/image-digests
     script:
-      - |
-        @echo "Generating image descriptions..."
-        @echo -n "" > internal/extensions/descriptions.yaml
-        @for image in $(shell cat internal/extensions/image-digests); do \
-          crane export $$image - | tar x -O --occurrence=1 manifest.yaml | yq -r ". += {\"$$image\": {\"author\": .metadata.author, \"description\": .metadata.description}} | del(.metadata, .version)" - >> internal/extensions/descriptions.yaml; \
-        done
+    - |
+      @echo "Generating image descriptions..."
+      @echo -n "" > internal/extensions/descriptions.yaml
+      @for image in $(shell cat internal/extensions/image-digests); do \
+        crane export $$image - | tar x -O --occurrence=1 manifest.yaml | yq -r ". += {\"$$image\": {\"author\": .metadata.author, \"description\": .metadata.description}} | del(.metadata, .version)" - >> internal/extensions/descriptions.yaml; \
+      done
 ---
 kind: custom.Step
 name: sign-images
@@ -170,34 +171,34 @@ spec:
     enabled: true
     phony: true
     script:
-      - |
-        @for image in $(shell crane export $(EXTENSIONS_IMAGE_REF) | tar x --to-stdout image-digests) $(EXTENSIONS_IMAGE_REF)@$$(crane digest $(EXTENSIONS_IMAGE_REF)); do \
-          echo '==>' $$image; \
-          cosign verify $$image --certificate-identity-regexp '@siderolabs\.com$$' --certificate-oidc-issuer https://accounts.google.com || \
-            cosign sign --yes $$image; \
-        done
+    - |
+      @for image in $(shell crane export $(EXTENSIONS_IMAGE_REF) | tar x --to-stdout image-digests) $(EXTENSIONS_IMAGE_REF)@$$(crane digest $(EXTENSIONS_IMAGE_REF)); do \
+        echo '==>' $$image; \
+        cosign verify $$image --certificate-identity-regexp '@siderolabs\.com$$' --certificate-oidc-issuer https://accounts.google.com || \
+          cosign sign --yes $$image; \
+      done
 ---
 kind: common.Renovate
 spec:
   packageRules:
-    - matchPackageNames:
-        - nvidia/open-gpu-kernel-modules
-        - open-iscsi/open-isns
-        - containers/crun
-        - git://git.kernel.org/pub/scm/libs/libcap/libcap.git
-        - git://sourceware.org/git/elfutils.git
-        - git://git.kernel.org/pub/scm/utils/mdadm/mdadm.git
-        - linux-nvme/libnvme
-        - linux-nvme/nvme-cli
-      versioning: 'regex:^(?<major>\d+)\.(?<minor>\d+)\.?(?<patch>\d+)?$'
-    - matchPackageNames:
-        - https://sourceware.org/git/glibc.git
-      versioning: 'regex:^(?<major>\d+)\.(?<minor>\d+)\.?(?<patch>[0-9]{1,3})?$'
-    - matchPackageNames:
-        - google/gvisor
-        - intel/Intel-Linux-Processor-Microcode-Data-Files
-        - cloudflare/cloudflared
-      versioning: 'regex:^(?<major>\d{4})(?<minor>\d{2})(?<patch>\d{2})\.?(?<build>\d+)?$'
-    - matchPackageNames:
-        - git://linux-nfs.org/~steved/libtirpc
-      versioning: 'regex:^(?<major>\d+)-(?<minor>\d+)-?(?<patch>\d+)?$'
+  - matchPackageNames:
+    - nvidia/open-gpu-kernel-modules
+    - open-iscsi/open-isns
+    - containers/crun
+    - git://git.kernel.org/pub/scm/libs/libcap/libcap.git
+    - git://sourceware.org/git/elfutils.git
+    - git://git.kernel.org/pub/scm/utils/mdadm/mdadm.git
+    - linux-nvme/libnvme
+    - linux-nvme/nvme-cli
+    versioning: 'regex:^(?<major>\d+)\.(?<minor>\d+)\.?(?<patch>\d+)?$'
+  - matchPackageNames:
+    - https://sourceware.org/git/glibc.git
+    versioning: 'regex:^(?<major>\d+)\.(?<minor>\d+)\.?(?<patch>[0-9]{1,3})?$'
+  - matchPackageNames:
+    - google/gvisor
+    - intel/Intel-Linux-Processor-Microcode-Data-Files
+    - cloudflare/cloudflared
+    versioning: 'regex:^(?<major>\d{4})(?<minor>\d{2})(?<patch>\d{2})\.?(?<build>\d+)?$'
+  - matchPackageNames:
+    - git://linux-nfs.org/~steved/libtirpc
+    versioning: 'regex:^(?<major>\d+)-(?<minor>\d+)-?(?<patch>\d+)?$'
