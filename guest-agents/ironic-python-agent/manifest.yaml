@@ -1,0 +1,10 @@
+version: v1alpha1
+metadata:
+  name: ironic-python-agent
+  version: "$VERSION"
+  author: Nick Atkins
+  description: |
+    This system extension provides the QEMU Guest Agent service.
+  compatibility:
+    talos:
+      version: ">= v1.5.0"
